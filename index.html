@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mondd Szépen! - Logopédiai Szókimondó Gyerekeknek</title>
+  <style>
+    :root {
+      --bg-color: #f4f9f9;
+      --card-bg: #ffffff;
+      --primary: #4a90e2;
+      --primary-hover: #357abd;
+      --secondary: #a0a0a0;
+      --accent: #ff9f43;
+      --success: #2ed573;
+      --success-hover: #26af5f;
+      --mic-bg: #ff6b6b;
+      --mic-hover: #ee5253;
+      --text-dark: #2f3542;
+      --text-light: #57606f;
+      --shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      --radius: 24px;
+      --font-family: 'Comic Sans MS', 'Fredoka', 'Quicksand', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background: linear-gradient(135deg, #e0f2fe 0%, #f3e8ff 50%, #fef3c7 100%);
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    #app {
+      width: 100%;
+      max-width: 680px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      min-height: 90vh;
+    }
+
+    /* Header */
+    .app-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(10px);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+
+    .app-header h1 {
+      font-size: 1.8rem;
+      color: #3b82f6;
+      font-weight: 800;
+    }
+
+    .star-counter {
+      background: #fef08a;
+      color: #854d0e;
+      font-weight: bold;
+      font-size: 1.4rem;
+      padding: 8px 18px;
+      border-radius: 50px;
+      border: 3px solid #fde047;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 10px rgba(234, 179, 8, 0.2);
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .star-counter.bump {
+      transform: scale(1.3);
+    }
+
+    /* Main Container & Screens */
+    .main-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-screen {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      box-shadow: var(--shadow);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 480px;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Group Selection */
+    #selection-screen h2 {
+      font-size: 1.6rem;
+      margin-bottom: 24px;
+      color: #1e293b;
+    }
+
+    .group-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 16px;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .group-card {
+      background: #f8fafc;
+      border: 3px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 20px 12px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .group-card:hover, .group-card:focus {
+      transform: translateY(-5px);
+      border-color: #3b82f6;
+      background: #eff6ff;
+      box-shadow: 0 10px 20px rgba(59, 130, 246, 0.15);
+      outline: none;
+    }
+
+    .group-card .icon {
+      font-size: 3rem;
+    }
+
+    .group-card .title {
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: #334155;
+    }
+
+    /* Progress & Controls */
+    .progress-bar-container {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .progress-text {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #64748b;
+      background: #f1f5f9;
+      padding: 6px 14px;
+      border-radius: 20px;
+    }
+
+    /* Flashcard */
+    .flashcard {
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      border: 4px solid #e2e8f0;
+      border-radius: 24px;
+      width: 100%;
+      max-width: 380px;
+      padding: 24px 16px;
+      margin: 12px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.04);
+      transition: transform 0.3s ease;
+    }
+
+    .flashcard.bounce {
+      animation: cardBounce 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .emoji-display {
+      font-size: 7rem;
+      line-height: 1.2;
+      filter: drop-shadow(0 6px 8px rgba(0,0,0,0.1));
+      transition: transform 0.3s ease;
+    }
+
+    .word-display {
+      font-size: 3rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: #0f172a;
+      margin-top: 8px;
+      text-transform: lowercase;
+    }
+
+    /* Feedback message */
+    .feedback-message {
+      width: 100%;
+      padding: 12px 18px;
+      border-radius: 16px;
+      font-size: 1.3rem;
+      font-weight: bold;
+      margin: 10px 0;
+      animation: popIn 0.3s ease;
+    }
+
+    .feedback-message.success {
+      background: #dcfce7;
+      color: #166534;
+      border: 2px solid #86efac;
+    }
+
+    .feedback-message.try-again {
+      background: #fef3c7;
+      color: #92400e;
+      border: 2px solid #fde047;
+    }
+
+    .feedback-message.info {
+      background: #e0f2fe;
+      color: #075985;
+      border: 2px solid #7dd3fc;
+    }
+
+    /* Buttons */
+    .action-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .btn {
+      font-family: inherit;
+      border: none;
+      border-radius: 20px;
+      padding: 14px 22px;
+      font-size: 1.25rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      outline: none;
+    }
+
+    .btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .btn-audio {
+      background: #3b82f6;
+      color: white;
+    }
+    .btn-audio:hover { background: #2563eb; }
+
+    .btn-mic {
+      background: #ef4444;
+      color: white;
+      position: relative;
+    }
+    .btn-mic:hover { background: #dc2626; }
+
+    .btn-mic.listening {
+      animation: pulseMic 1.2s infinite;
+      background: #b91c1c;
+    }
+
+    .btn-fallback {
+      background: #10b981;
+      color: white;
+    }
+    .btn-fallback:hover { background: #059669; }
+
+    .btn-next {
+      background: #8b5cf6;
+      color: white;
+      font-size: 1.4rem;
+      padding: 16px 36px;
+      margin-top: 10px;
+    }
+    .btn-next:hover { background: #7c3aed; }
+
+    .btn-primary {
+      background: #3b82f6;
+      color: white;
+    }
+    .btn-primary:hover { background: #2563eb; }
+
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #334155;
+    }
+    .btn-secondary:hover { background: #cbd5e1; }
+
+    .btn-sm {
+      padding: 8px 16px;
+      font-size: 1rem;
+      border-radius: 12px;
+    }
+
+    /* Summary Screen */
+    .summary-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+    }
+
+    .trophy-emoji {
+      font-size: 5rem;
+      animation: bounce 1s infinite alternate;
+    }
+
+    .summary-stars {
+      font-size: 1.6rem;
+      font-weight: bold;
+      color: #1e293b;
+    }
+
+    .stars-visual {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      max-width: 320px;
+      font-size: 2rem;
+      margin: 10px 0;
+    }
+
+    .summary-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+      max-width: 300px;
+      margin-top: 10px;
+    }
+
+    /* Footer */
+    .app-footer {
+      margin-top: auto;
+      padding-top: 20px;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #64748b;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes cardBounce {
+      0% { transform: scale(1); }
+      30% { transform: scale(1.08); }
+      60% { transform: scale(0.95); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes pulseMic {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+      70% { box-shadow: 0 0 0 16px rgba(239, 68, 68, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+
+    @keyframes bounce {
+      from { transform: translateY(0); }
+      to { transform: translateY(-12px); }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- Header -->
+    <header class="app-header">
+      <h1 id="app-title">Mondd Szépen! 🗣️</h1>
+      <div id="star-counter" class="star-counter hidden" aria-label="Gyűjtött csillagok">
+        ⭐ <span id="star-count">0</span>
+      </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="main-container">
+      <!-- 1. Group Selection Screen -->
+      <section id="selection-screen" class="card-screen">
+        <h2>Válassz egy hangot a gyakorláshoz! 🎯</h2>
+        <div id="group-buttons-container" class="group-grid">
+          <!-- Sound group buttons generated dynamically -->
+        </div>
+      </section>
+
+      <!-- 2. Flashcard Practice Screen -->
+      <section id="practice-screen" class="card-screen hidden">
+        <div class="progress-bar-container">
+          <button id="back-to-menu-btn" class="btn btn-secondary btn-sm" aria-label="Vissza a menübe">⬅️ Menü</button>
+          <div id="progress-text" class="progress-text">1 / 5</div>
+        </div>
+
+        <div class="flashcard">
+          <div id="emoji-display" class="emoji-display" aria-hidden="true">🐟</div>
+          <div id="word-display" class="word-display">hal</div>
+        </div>
+
+        <div id="feedback-message" class="feedback-message hidden" aria-live="polite"></div>
+
+        <div class="action-buttons">
+          <button id="tts-btn" class="btn btn-audio">
+            🔊 Hallgasd meg
+          </button>
+          <button id="mic-btn" class="btn btn-mic">
+            🎙️ Mondd ki!
+          </button>
+          <button id="fallback-btn" class="btn btn-fallback">
+            👍 Kimondtam!
+          </button>
+        </div>
+
+        <div class="navigation-controls">
+          <button id="next-btn" class="btn btn-next hidden">
+            Következő szó ➔
+          </button>
+        </div>
+      </section>
+
+      <!-- 3. Summary / End Screen -->
+      <section id="summary-screen" class="card-screen hidden">
+        <div class="summary-content">
+          <div class="trophy-emoji">🏆</div>
+          <h2>Ügyes vagy! Gyönyörűen gyakoroltál! 🎉</h2>
+          <p class="summary-stars">
+            Összesen <span id="final-star-count">0</span> ⭐ csillagot gyűjtöttél!
+          </p>
+          <div id="stars-visual-container" class="stars-visual"></div>
+          <div class="summary-actions">
+            <button id="restart-group-btn" class="btn btn-primary">
+              🔄 Újra ezt a hangot
+            </button>
+            <button id="home-btn" class="btn btn-secondary">
+              🏠 Másik hang választása
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <p>Logopédiai gyakorló alkalmazás 5–8 éves gyerekeknek. Teljesen privát, nem gyűjt semmilyen adatot. 🔒</p>
+    </footer>
+  </div>
+
+  <script>
+    // =========================================================================
+    // KÖNNYEN SZERKESZTHETŐ SZÓLISTA HANGOK SZERINT CSOPORTOSÍTVA
+    // =========================================================================
+    const WORD_GROUPS = [
+      {
+        id: "s",
+        name: "S hang",
+        icon: "🧣",
+        description: "Gyakorold az S hangot!",
+        words: [
+          { word: "sál", emoji: "🧣" },
+          { word: "sajt", emoji: "🧀" },
+          { word: "sün", emoji: "🦔" },
+          { word: "sapka", emoji: "🧢" },
+          { word: "sárkány", emoji: "🐉" },
+          { word: "sárgarépa", emoji: "🥕" }
+        ]
+      },
+      {
+        id: "sz",
+        name: "SZ hang",
+        icon: "🍇",
+        description: "Gyakorold az SZ hangot!",
+        words: [
+          { word: "szilva", emoji: "🫐" },
+          { word: "szőlő", emoji: "🍇" },
+          { word: "szív", emoji: "❤️" },
+          { word: "szánkó", emoji: "🛷" },
+          { word: "szemüveg", emoji: "👓" },
+          { word: "szendvics", emoji: "🥪" }
+        ]
+      },
+      {
+        id: "r",
+        name: "R hang",
+        icon: "🦊",
+        description: "Gyakorold az R hangot!",
+        words: [
+          { word: "rák", emoji: "🦀" },
+          { word: "róka", emoji: "🦊" },
+          { word: "repülő", emoji: "✈️" },
+          { word: "rigó", emoji: "🐦" },
+          { word: "robot", emoji: "🤖" },
+          { word: "rózsa", emoji: "🌹" }
+        ]
+      },
+      {
+        id: "l",
+        name: "L hang",
+        icon: "🎈",
+        description: "Gyakorold az L hangot!",
+        words: [
+          { word: "lufi", emoji: "🎈" },
+          { word: "ló", emoji: "🐴" },
+          { word: "lámpa", emoji: "💡" },
+          { word: "liliom", emoji: "🌺" },
+          { word: "láma", emoji: "🦙" },
+          { word: "lila", emoji: "🪻" }
+        ]
+      },
+      {
+        id: "vegyes",
+        name: "Vegyes képek",
+        icon: "⭐",
+        description: "Különféle kedves szavak gyakorlása",
+        words: [
+          { word: "hal", emoji: "🐟" },
+          { word: "ház", emoji: "🏠" },
+          { word: "alma", emoji: "🍎" },
+          { word: "cica", emoji: "🐱" },
+          { word: "nap", emoji: "🌞" },
+          { word: "autó", emoji: "🚗" },
+          { word: "béka", emoji: "🐸" },
+          { word: "lufi", emoji: "🎈" }
+        ]
+      }
+    ];
+
+    // Application State
+    let currentGroup = null;
+    let currentWordIndex = 0;
+    let starsEarned = 0;
+    let isListening = false;
+    let recognition = null;
+
+    // DOM Elements
+    const selectionScreen = document.getElementById('selection-screen');
+    const practiceScreen = document.getElementById('practice-screen');
+    const summaryScreen = document.getElementById('summary-screen');
+    const groupButtonsContainer = document.getElementById('group-buttons-container');
+
+    const starCounter = document.getElementById('star-counter');
+    const starCountEl = document.getElementById('star-count');
+    const progressText = document.getElementById('progress-text');
+    const emojiDisplay = document.getElementById('emoji-display');
+    const wordDisplay = document.getElementById('word-display');
+    const feedbackMessage = document.getElementById('feedback-message');
+
+    const ttsBtn = document.getElementById('tts-btn');
+    const micBtn = document.getElementById('mic-btn');
+    const fallbackBtn = document.getElementById('fallback-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const backToMenuBtn = document.getElementById('back-to-menu-btn');
+
+    const finalStarCount = document.getElementById('final-star-count');
+    const starsVisualContainer = document.getElementById('stars-visual-container');
+    const restartGroupBtn = document.getElementById('restart-group-btn');
+    const homeBtn = document.getElementById('home-btn');
+
+    // Initialize Web Speech Recognition
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    function initSpeechRecognition() {
+      if (!SpeechRecognition) {
+        console.warn("Speech Recognition API not supported in this browser.");
+        micBtn.style.display = "none";
+        return;
+      }
+
+      recognition = new SpeechRecognition();
+      recognition.lang = 'hu-HU';
+      recognition.continuous = false;
+      recognition.interimResults = false;
+
+      recognition.onstart = () => {
+        isListening = true;
+        micBtn.classList.add('listening');
+        micBtn.innerHTML = '🎙️ Hallgatlak...';
+        showFeedback("Hallgatom, amit mondasz! 👂", "info");
+      };
+
+      recognition.onresult = (event) => {
+        isListening = false;
+        micBtn.classList.remove('listening');
+        micBtn.innerHTML = '🎙️ Mondd ki!';
+
+        const spokenTranscript = event.results[0][0].transcript.trim().toLowerCase();
+        const targetWord = currentGroup.words[currentWordIndex].word.trim().toLowerCase();
+
+        evaluateSpokenWord(spokenTranscript, targetWord);
+      };
+
+      recognition.onerror = (event) => {
+        isListening = false;
+        micBtn.classList.remove('listening');
+        micBtn.innerHTML = '🎙️ Mondd ki!';
+
+        if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+          showFeedback("A mikrofon nem elérhető. Használd a 'Kimondtam!' gombot! 👍", "info");
+        } else if (event.error === 'no-speech') {
+          showFeedback("Nem hallottam semmit. Próbáld újra hangosabban! 📢", "try-again");
+        } else {
+          showFeedback("Nem sikerült megérteni. Próbáld újra vagy nyomd meg a 'Kimondtam!' gombot!", "try-again");
+        }
+      };
+
+      recognition.onend = () => {
+        isListening = false;
+        micBtn.classList.remove('listening');
+        micBtn.innerHTML = '🎙️ Mondd ki!';
+      };
+    }
+
+    // Text-To-Speech (Hungarian felolvasás)
+    function speakWord(text) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel(); // Stop any active speech
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'hu-HU';
+        utterance.rate = 0.85; // Slightly slower for speech practice
+        utterance.pitch = 1.0;
+        window.speechSynthesis.speak(utterance);
+      } else {
+        alert("A felolvasás nem támogatott ebben a böngészőben.");
+      }
+    }
+
+    // Evaluation Logic
+    function evaluateSpokenWord(spoken, target) {
+      // Normalize Hungarian characters / check substring match for leniency
+      const cleanSpoken = spoken.toLowerCase().replace(/[^a-záéíóöőúüű]/g, '');
+      const cleanTarget = target.toLowerCase().replace(/[^a-záéíóöőúüű]/g, '');
+
+      if (cleanSpoken.includes(cleanTarget) || cleanTarget.includes(cleanSpoken)) {
+        handleSuccess();
+      } else {
+        showFeedback(`Közel jár a "${spoken}"! Próbáld újra kimondani: "${target}"! 💪`, "try-again");
+      }
+    }
+
+    // Success Handling
+    function handleSuccess() {
+      starsEarned += 1;
+      updateStarDisplay();
+
+      const praises = [
+        "Szuper vagy! ⭐",
+        "Gyönyörű ejtés! 🌟",
+        "Ügyes voltál! 🎉",
+        "Nagyszerű! ⭐",
+        "Fantasztikus! 👏"
+      ];
+      const randomPraise = praises[Math.floor(Math.random() * praises.length)];
+
+      showFeedback(`${randomPraise} Kaptál egy csillagot!`, "success");
+
+      // Flashcard bounce animation
+      const card = document.querySelector('.flashcard');
+      card.classList.add('bounce');
+      setTimeout(() => card.classList.remove('bounce'), 600);
+
+      // Disable mic/fallback after success, reveal next button
+      micBtn.style.display = 'none';
+      fallbackBtn.style.display = 'none';
+      nextBtn.classList.remove('hidden');
+    }
+
+    function showFeedback(message, type) {
+      feedbackMessage.textContent = message;
+      feedbackMessage.className = `feedback-message ${type}`;
+      feedbackMessage.classList.remove('hidden');
+    }
+
+    function hideFeedback() {
+      feedbackMessage.classList.add('hidden');
+      feedbackMessage.textContent = '';
+    }
+
+    function updateStarDisplay() {
+      starCountEl.textContent = starsEarned;
+      starCounter.classList.add('bump');
+      setTimeout(() => starCounter.classList.remove('bump'), 300);
+    }
+
+    // Render Group Selection Screen
+    function renderGroupSelection() {
+      groupButtonsContainer.innerHTML = '';
+      WORD_GROUPS.forEach(group => {
+        const card = document.createElement('button');
+        card.className = 'group-card';
+        card.setAttribute('aria-label', `${group.name}: ${group.description}`);
+        card.innerHTML = `
+          <span class="icon">${group.icon}</span>
+          <span class="title">${group.name}</span>
+        `;
+        card.addEventListener('click', () => startGroup(group));
+        groupButtonsContainer.appendChild(card);
+      });
+    }
+
+    // Navigation & Flow
+    function startGroup(group) {
+      currentGroup = group;
+      currentWordIndex = 0;
+      starsEarned = 0;
+      updateStarDisplay();
+
+      selectionScreen.classList.add('hidden');
+      summaryScreen.classList.add('hidden');
+      practiceScreen.classList.remove('hidden');
+      starCounter.classList.remove('hidden');
+
+      loadCurrentWord();
+    }
+
+    function loadCurrentWord() {
+      const currentObj = currentGroup.words[currentWordIndex];
+      emojiDisplay.textContent = currentObj.emoji;
+      wordDisplay.textContent = currentObj.word;
+
+      progressText.textContent = `${currentWordIndex + 1} / ${currentGroup.words.length}`;
+
+      hideFeedback();
+
+      // Reset action buttons
+      if (SpeechRecognition) {
+        micBtn.style.display = 'inline-flex';
+      } else {
+        micBtn.style.display = 'none';
+      }
+      fallbackBtn.style.display = 'inline-flex';
+      nextBtn.classList.add('hidden');
+
+      // Auto read word out loud on load
+      setTimeout(() => {
+        speakWord(currentObj.word);
+      }, 300);
+    }
+
+    function nextWord() {
+      currentWordIndex++;
+      if (currentWordIndex < currentGroup.words.length) {
+        loadCurrentWord();
+      } else {
+        showSummary();
+      }
+    }
+
+    function showSummary() {
+      practiceScreen.classList.add('hidden');
+      summaryScreen.classList.remove('hidden');
+
+      finalStarCount.textContent = starsEarned;
+      starsVisualContainer.innerHTML = '';
+      for (let i = 0; i < starsEarned; i++) {
+        const starSpan = document.createElement('span');
+        starSpan.textContent = '⭐';
+        starSpan.style.animation = `popIn 0.3s ease forwards ${i * 0.1}s`;
+        starsVisualContainer.appendChild(starSpan);
+      }
+
+      speakWord(`Nagyszerű voltál! Összesen ${starsEarned} csillagot gyűjtöttél!`);
+    }
+
+    function returnToMenu() {
+      if (window.speechSynthesis) window.speechSynthesis.cancel();
+      if (recognition && isListening) recognition.stop();
+
+      practiceScreen.classList.add('hidden');
+      summaryScreen.classList.add('hidden');
+      selectionScreen.classList.remove('hidden');
+      starCounter.classList.add('hidden');
+    }
+
+    // Event Listeners Setup
+    function setupEventListeners() {
+      ttsBtn.addEventListener('click', () => {
+        if (currentGroup && currentGroup.words[currentWordIndex]) {
+          speakWord(currentGroup.words[currentWordIndex].word);
+        }
+      });
+
+      micBtn.addEventListener('click', () => {
+        if (!recognition) {
+          showFeedback("A beszédfelismerés nem érhető el ezen az eszközön. Használd a 'Kimondtam!' gombot!", "info");
+          return;
+        }
+
+        if (isListening) {
+          recognition.stop();
+        } else {
+          try {
+            recognition.start();
+          } catch (e) {
+            console.error(e);
+          }
+        }
+      });
+
+      fallbackBtn.addEventListener('click', () => {
+        handleSuccess();
+      });
+
+      nextBtn.addEventListener('click', () => {
+        nextWord();
+      });
+
+      backToMenuBtn.addEventListener('click', returnToMenu);
+      homeBtn.addEventListener('click', returnToMenu);
+
+      restartGroupBtn.addEventListener('click', () => {
+        if (currentGroup) {
+          startGroup(currentGroup);
+        }
+      });
+    }
+
+    // App Initialization
+    document.addEventListener('DOMContentLoaded', () => {
+      initSpeechRecognition();
+      renderGroupSelection();
+      setupEventListeners();
+    });
+  </script>
+</body>
+</html>
